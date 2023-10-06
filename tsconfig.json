@@ -1,0 +1,37 @@
+{
+  "exclude": ["node_modules"],
+  "compilerOptions": {
+    "allowJs": false,
+    "declaration": false,
+    "experimentalDecorators": true,
+    "sourceMap": false,
+    "useUnknownInCatchVariables": false,
+    "strictFunctionTypes": false,
+    "forceConsistentCasingInFileNames": true,
+    "target": "ES2022",
+    "baseUrl": ".",
+    "outDir": "app",
+    "pretty": true,
+    "module": "commonjs",
+    "paths": {
+      "@/*": ["*"],
+      "@configs/*": ["configs/*"],
+      "@controllers/*": ["controllers/*"],
+      "@dtos/*": ["dtos/*"],
+      "@interfaces/*": ["interfaces/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@models/*": ["models/*"],
+      "@routes/*": ["routes/*"],
+      "@services/*": ["services/*"],
+      "@utils/*": ["utils/*"],
+      "@constants/*": ["constants/*"],
+      "@validations/*": ["validations/*"]
+    }
+  },
+  "include": ["src/", ".env"],
+  "ts-node": {
+    "compilerOptions": {
+      "module": "CommonJS"
+    }
+  }
+}

@@ -1,0 +1,17 @@
+database:
+  mongo:
+    url: mongodb://127.0.0.1:27017/hangout
+    options:
+      useNewUrlParser: true
+      useUnifiedTopology: true
+middlewares:
+  cors:
+    activate: true
+    origin: '*'
+    methods:
+      - GET
+      - POST
+      - PUT
+      - DELETE
+routing:
+port: 8001

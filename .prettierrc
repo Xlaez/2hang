@@ -1,0 +1,7 @@
+{
+  "hooks": {
+    "pre-commit": "lint-staged"
+  },
+  "singleQuote": true,
+  "printWidth": 125
+}
