@@ -18,7 +18,7 @@ export const sendOtp = {
   }),
 };
 
-export const checkEmail = {
+export const verifyEmail = {
   body: Joi.object().keys({
     email: Joi.string().required().trim().email(),
   }),

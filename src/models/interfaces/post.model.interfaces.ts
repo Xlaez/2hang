@@ -1,7 +1,7 @@
-import { Document } from 'mongoose';
+import { mongoose } from '@dolphjs/dolph/packages';
 import { IUser } from './user.model.interfaces';
 
-export interface IPost extends Document {
+export interface IPost extends mongoose.Document {
   content: string;
   tags: string[];
   public: boolean;

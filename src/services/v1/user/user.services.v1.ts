@@ -1,18 +1,18 @@
 import { IUser, UserModel } from '@/src/models';
 import { DolphServiceHandler } from '@dolphjs/dolph/classes';
 import { Dolph } from '@dolphjs/dolph/common';
+import { mongoose } from '@dolphjs/dolph/packages';
 import { InjectMongo } from '@dolphjs/dolph/decorators';
 import { Pagination } from 'mongoose-paginate-ts';
-import { Model } from 'mongoose';
 
 @InjectMongo('userModel', UserModel)
 export class UserService extends DolphServiceHandler<Dolph> {
-  userModel!: Model<Pagination<IUser>>;
+  userModel!: mongoose.Model<IUser, Pagination<IUser>>;
   constructor() {
     super('user');
   }
 
-  create = async (body: IUser) => {
+  create = async (body: any) => {
     return this.userModel.create(body);
   };
 

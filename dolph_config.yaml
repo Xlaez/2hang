@@ -1,9 +1,9 @@
 database:
   mongo:
-    url: mongodb://127.0.0.1:27017/hangout
+    url: mongodb://localhost:27017/2hang
     options:
+      autoIndex: true
       useNewUrlParser: true
-      useUnifiedTopology: true
 middlewares:
   cors:
     activate: true

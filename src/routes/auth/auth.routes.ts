@@ -1,4 +1,5 @@
-import { DolphControllerHandler, DolphRouteHandler } from '@dolphjs/dolph/classes';
+import { AuthController } from '@/src/controllers/auth.controllers';
+import { DolphRouteHandler } from '@dolphjs/dolph/classes';
 import { Dolph } from '@dolphjs/dolph/common';
 
 class AuthRouter extends DolphRouteHandler<Dolph> {
@@ -6,13 +7,11 @@ class AuthRouter extends DolphRouteHandler<Dolph> {
     super();
     this.initRoutes();
   }
-  controller: DolphControllerHandler<string>;
+  controller: AuthController = new AuthController();
 
   path: string = '/v1/auth';
   initRoutes(): void {
-    this.router.get(this.path, (req, res) => {
-      res.send('reached here');
-    });
+    this.router.get(`${this.path}/otp/:email`, this.controller.sendOtp);
   }
 }
 

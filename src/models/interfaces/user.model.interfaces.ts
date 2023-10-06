@@ -1,4 +1,4 @@
-import { Document } from 'mongoose';
+import { mongoose } from '@dolphjs/dolph/packages';
 import { authType, role, status } from '../types';
 
 export interface UserLocation {
@@ -11,7 +11,7 @@ export interface UserSocials {
   facebook: string;
 }
 
-export interface IUser extends Document {
+export interface IUser extends mongoose.Document {
   username: string;
   display_name: string;
   dob: Date;

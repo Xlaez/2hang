@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { mongoose } from '@dolphjs/dolph/packages';
 import { transformDoc } from '@dolphjs/dolph/packages';
 
 import { users } from './constants';
@@ -8,7 +8,7 @@ import { generateRandomNumbers } from '../utils';
 import { hashWithArgon, verifyArgonHash } from '@dolphjs/dolph/utilities';
 import { NextFunction } from 'express';
 
-const UserSchema = new Schema(
+const UserSchema = new mongoose.Schema(
   {
     username: {
       type: String,
@@ -133,4 +133,4 @@ UserSchema.pre('save', async function (next: NextFunction) {
   next();
 });
 
-export const UserModel: Pagination<IUser> = model<IUser, Pagination<IUser>>(users, UserSchema);
+export const UserModel: Pagination<IUser> = mongoose.model<IUser, Pagination<IUser>>(users, UserSchema);

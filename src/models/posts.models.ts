@@ -1,10 +1,10 @@
-import { Schema, model } from 'mongoose';
+import { mongoose } from '@dolphjs/dolph/packages';
 import { posts, users } from './constants';
 import { transformDoc } from '@dolphjs/dolph/packages';
 import { Pagination, mongoosePagination } from 'mongoose-paginate-ts';
 import { IPost } from './interfaces';
 
-const PostSchema = new Schema(
+const PostSchema = new mongoose.Schema(
   {
     content: {
       type: String,
@@ -18,7 +18,7 @@ const PostSchema = new Schema(
     },
     catgeories: [{ type: String, required: true }],
     owner: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Schema.Types.ObjectId,
       ref: users,
       required: true,
     },
@@ -31,4 +31,4 @@ const PostSchema = new Schema(
 PostSchema.plugin(transformDoc);
 PostSchema.plugin(mongoosePagination);
 
-export const PostModel: Pagination<IPost> = model<IPost, Pagination<IPost>>(posts, PostSchema);
+export const PostModel: Pagination<IPost> = mongoose.model<IPost, Pagination<IPost>>(posts, PostSchema);
