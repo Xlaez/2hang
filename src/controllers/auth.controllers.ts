@@ -12,6 +12,9 @@ import { compareAndValidateStrings, generateRandomAlphabets } from '../utils';
 import { sendActivateAccountMail, sendOtpToUsersMail, sendRegistrationMail } from '../services/mail/auth';
 import { createAuthCookie, destroyCookie } from '../services/helpers';
 import { hashWithBcrypt } from '@dolphjs/dolph/utilities';
+import { Authorization } from '../decorators';
+import { configs } from '../configs';
+import { sendsms } from '../services/sms';
 
 const services = new Services();
 
@@ -98,7 +101,7 @@ export class AuthController extends DolphControllerHandler<Dolph> {
 
     await sendRegistrationMail(email, display_name);
     const { options, token } = await createAuthCookie(user._id);
-    res.cookie('x-auth-token', token, options);
+    res.cookie('xAuthToken', token, options);
     SuccessResponse({ res, status: 201, body: { msg: 'account created' } });
   }
 
@@ -116,7 +119,7 @@ export class AuthController extends DolphControllerHandler<Dolph> {
 
     const { options, token } = await createAuthCookie(user._id);
 
-    res.cookie('x-auth-token', token, options);
+    res.cookie('xAuthToken', token, options);
 
     SuccessResponse({ res, body: { msg: 'log in successful' } });
   }
@@ -124,7 +127,51 @@ export class AuthController extends DolphControllerHandler<Dolph> {
   @TryCatchAsyncDec
   public async logout(req: Request, res: Response) {
     const { options } = await destroyCookie();
-    res.cookie('x-auth-token', '', options);
+    res.cookie('xAuthToken', '', options);
     SuccessResponse({ res, body: { msg: 'user has been logged out' } });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async sendPhoneOtp(req: Request, res: Response) {
+    const { phone_no } = req.params;
+    const user = await services.userService.findOne({ _id: req.user });
+    if (user.phone_no && user.phone_verified) throw new BadRequestException('phone number has already been verified');
+
+    let otp = '';
+    if (user.phone_no && !user.phone_verified) {
+      otp = await user.generateOtp();
+    } else {
+      const _user = await services.userService.updateBylD(user._id, { phone_no });
+      if (_user.modifiedCount === 0) throw new InternalServerErrorException('cannot process request');
+
+      otp = await user.generateOtp();
+    }
+
+    // send otp to phone number
+    const sentMail = await sendsms(phone_no, `Dear ${user.display_name}, toHang code: ${otp}. \n Valid for 3 minutes`);
+    if (!sentMail.ok) throw new BadRequestException('could not send sms');
+
+    SuccessResponse({ res, body: { msg: 'otp sent' } });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async verifyPhoneNo(req: Request, res: Response) {
+    const { phone_no, otp } = req.body;
+    const user = await services.userService.findOne({ phone_no });
+
+    if (!user) throw new BadRequestException('user not found');
+
+    if (!(await compareAndValidateStrings(otp, user.otp, user.otp_expiry)))
+      throw new BadRequestException('otp is invalid or has expired. Request for another');
+
+    user.otp = '';
+    user.otp_expiry = new Date(0);
+    user.phone_verified = true;
+
+    if (!(await user.save())) throw new InternalServerErrorException('cannot proccess request');
+
+    SuccessResponse({ res, body: { msg: 'phone number verified' } });
   }
 }

@@ -28,7 +28,7 @@ export class UserService extends DolphServiceHandler<Dolph> {
     return this.userModel.findOne({ email });
   };
 
-  findById = async (id: string) => {
+  findById = async (id: any) => {
     return this.userModel.findById(id);
   };
 

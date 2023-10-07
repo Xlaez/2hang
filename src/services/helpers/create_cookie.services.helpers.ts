@@ -15,9 +15,9 @@ export const generateToken = async (id: Types.ObjectId | string) => {
 };
 
 export const createAuthCookie = async (id: Types.ObjectId | string) => {
-  const token = generateToken(id);
+  const token = await generateToken(id);
   const options = {
-    expires: new Date(Date.now() + 1000 * 60 * 30),
+    expires: new Date(new Date().getTime() + 1000 * 60 * 30),
     httpOnly: false,
     secure: false,
   };
