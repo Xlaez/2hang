@@ -14,6 +14,7 @@ const envSchema = Joi.object()
     SMTP_PASSWORD: Joi.string().required().description('application smtp password'),
     SMTP_USERNAME: Joi.string().description('applications smtp gmail').required(),
     OTP_EXPIRATION: Joi.string().description('otp expiration').default(3600),
+    SENDCHAMP_API: Joi.string().description('sendchamp api for sms').required(),
   })
   .unknown();
 
@@ -38,5 +39,8 @@ export const configs = {
   },
   otp: {
     expires: envVars.OTP_EXPIRATION,
+  },
+  sms: {
+    sendchamp_api: envVars.SENDCHAMP_API,
   },
 };
