@@ -5,7 +5,7 @@ import { users } from './constants';
 import { Pagination, mongoosePagination } from 'mongoose-paginate-ts';
 import { IUser } from './interfaces';
 import { generateRandomNumbers } from '../utils';
-import { hashWithArgon, verifyArgonHash } from '@dolphjs/dolph/utilities';
+import { compareWithBcryptHash, hashWithArgon, hashWithBcrypt, verifyArgonHash } from '@dolphjs/dolph/utilities';
 import { NextFunction } from 'express';
 
 const UserSchema = new mongoose.Schema(
@@ -113,7 +113,7 @@ UserSchema.plugin(mongoosePagination);
 UserSchema.methods.generateOtp = async function () {
   const user = this as IUser;
   const otp = generateRandomNumbers(0, 10, 5);
-  user.otp = (await hashWithArgon({ pureString: otp, version: 2 })).toString();
+  user.otp = (await hashWithBcrypt({ pureString: otp, salt: 11 })).toString();
   user.otp_expiry = new Date(Date.now() + 5 * 60 * 1000);
   await user.save();
   return otp;
@@ -121,16 +121,7 @@ UserSchema.methods.generateOtp = async function () {
 
 UserSchema.methods.doesPasswordMatch = async function (password: string): Promise<boolean> {
   const user = this as IUser;
-  return verifyArgonHash({ pureString: password, hashString: user.password });
+  return compareWithBcryptHash({ pureString: password, hashString: user.password });
 };
-
-UserSchema.pre('save', async function (next: NextFunction) {
-  const user = this as IUser;
-  if (user.authType !== 'login') return next();
-
-  if (user.isModified('password'))
-    user.password = (await hashWithArgon({ pureString: user.password, version: 2 })).toString();
-  next();
-});
 
 export const UserModel: Pagination<IUser> = mongoose.model<IUser, Pagination<IUser>>(users, UserSchema);

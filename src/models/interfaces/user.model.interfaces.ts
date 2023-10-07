@@ -35,5 +35,6 @@ export interface IUser extends mongoose.Document {
   authType: authType;
   authToken: string;
   generateOtp: () => Promise<string>;
+  // hashPassword: () => Promise<void>;
   doesPasswordMatch: (password: string) => Promise<boolean>;
 }

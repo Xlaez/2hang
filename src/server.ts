@@ -8,5 +8,6 @@ mongoose
   .catch((err) => {
     console.log(err);
   });
+
 const dolph = new DolphFactory(routes);
 dolph.start();

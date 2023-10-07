@@ -9,17 +9,19 @@ export const newUser = {
     gender: Joi.string().required(),
     password: Joi.string().required().custom(passwordValidatorUtil).trim(),
     dob: Joi.date().required(),
+    email: Joi.string().required().email().trim(),
   }),
 };
 
 export const sendOtp = {
-  body: Joi.object().keys({
-    otp: Joi.string().required().min(5).max(5).trim(),
+  params: Joi.object().keys({
+    email: Joi.string().required().email().trim(),
   }),
 };
 
 export const verifyEmail = {
   body: Joi.object().keys({
+    otp: Joi.string().required().min(5).max(5).trim(),
     email: Joi.string().required().trim().email(),
   }),
 };

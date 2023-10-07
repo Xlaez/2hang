@@ -16,11 +16,27 @@ export class UserService extends DolphServiceHandler<Dolph> {
     return this.userModel.create(body);
   };
 
+  find = async (query: any) => {
+    return this.userModel.find(query);
+  };
+
+  findOne = async (query: any) => {
+    return this.userModel.findOne(query);
+  };
+
   findByEmail = async (email: string) => {
     return this.userModel.findOne({ email });
   };
 
   findById = async (id: string) => {
     return this.userModel.findById(id);
+  };
+
+  updateByEmail = async (email: string, body: any) => {
+    return this.userModel.updateOne({ email }, body, { new: true });
+  };
+
+  updateBylD = async (_id: string | mongoose.Types.ObjectId, body: any) => {
+    return this.userModel.updateOne({ _id }, body, { new: true });
   };
 }
