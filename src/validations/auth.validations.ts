@@ -41,6 +41,14 @@ export const login = {
   }),
 };
 
+export const restetPassword = {
+  body: Joi.object().keys({
+    otp: Joi.string().required().min(5).max(5).trim(),
+    email: Joi.string().required().trim().email(),
+    password: Joi.string().required().trim().custom(passwordValidatorUtil),
+  }),
+};
+
 export const sendPhoneOtp = {
   params: Joi.object().keys({
     phone_no: Joi.string().required().trim(),

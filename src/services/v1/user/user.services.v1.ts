@@ -32,11 +32,19 @@ export class UserService extends DolphServiceHandler<Dolph> {
     return this.userModel.findById(id);
   };
 
+  deleteById = async (id: any) => {
+    return this.userModel.findByIdAndDelete(id);
+  };
+
   updateByEmail = async (email: string, body: any) => {
     return this.userModel.updateOne({ email }, body, { new: true });
   };
 
-  updateBylD = async (_id: string | mongoose.Types.ObjectId, body: any) => {
-    return this.userModel.updateOne({ _id }, body, { new: true });
+  updateBylD = async (_id: string | mongoose.Types.ObjectId | any, body: any) => {
+    return this.userModel.findOneAndUpdate({ _id }, body, { new: true });
+  };
+
+  isUsernameAvailable = async (username: string) => {
+    return this.findOne({ username });
   };
 }

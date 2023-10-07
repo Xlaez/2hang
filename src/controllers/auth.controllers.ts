@@ -3,13 +3,19 @@ import {
   BadRequestException,
   Dolph,
   InternalServerErrorException,
+  NotFoundException,
   SuccessResponse,
   TryCatchAsyncDec,
 } from '@dolphjs/dolph/common';
 import { Request, Response } from 'express';
 import { Services } from '../services/v1';
 import { compareAndValidateStrings, generateRandomAlphabets } from '../utils';
-import { sendActivateAccountMail, sendOtpToUsersMail, sendRegistrationMail } from '../services/mail/auth';
+import {
+  sendActivateAccountMail,
+  sendForogotPasswordMail,
+  sendOtpToUsersMail,
+  sendRegistrationMail,
+} from '../services/mail/auth';
 import { createAuthCookie, destroyCookie } from '../services/helpers';
 import { hashWithBcrypt } from '@dolphjs/dolph/utilities';
 import { Authorization } from '../decorators';
@@ -143,7 +149,7 @@ export class AuthController extends DolphControllerHandler<Dolph> {
       otp = await user.generateOtp();
     } else {
       const _user = await services.userService.updateBylD(user._id, { phone_no });
-      if (_user.modifiedCount === 0) throw new InternalServerErrorException('cannot process request');
+      if (!_user) throw new InternalServerErrorException('cannot process request');
 
       otp = await user.generateOtp();
     }
@@ -173,5 +179,57 @@ export class AuthController extends DolphControllerHandler<Dolph> {
     if (!(await user.save())) throw new InternalServerErrorException('cannot proccess request');
 
     SuccessResponse({ res, body: { msg: 'phone number verified' } });
+  }
+
+  @TryCatchAsyncDec
+  public async forgotPassword(req: Request, res: Response) {
+    const user = await services.userService.findByEmail(req.params.email);
+    if (!user) throw new BadRequestException('user not found');
+
+    const otp = await user.generateOtp();
+
+    await sendForogotPasswordMail(req.params.email, otp, user.display_name);
+
+    SuccessResponse({ res, body: { msg: 'otp sent' } });
+  }
+
+  @TryCatchAsyncDec
+  public async resetPassword(req: Request, res: Response) {
+    const { otp, password, email } = req.body;
+
+    const user = await services.userService.findByEmail(email);
+
+    if (!user) throw new BadRequestException('user not found');
+
+    if (!(await compareAndValidateStrings(otp, user.otp, user.otp_expiry)))
+      throw new BadRequestException('otp invalid or expired, try requesting another');
+
+    user.otp = '';
+    user.otp_expiry = new Date(0);
+    user.password = await hashWithBcrypt({ pureString: password, salt: 11 });
+
+    if (!(await user.save())) throw new InternalServerErrorException('cannot process request');
+
+    await services.notificationService.send({
+      label: 'Password Updated',
+      user: user._id,
+      type: 'auth',
+      content: `Hello ${user.display_name}! Your password has been update successfully`,
+    });
+
+    SuccessResponse({ res, body: { msg: 'password updated' } });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async deleteAccount(req: Request, res: Response) {
+    const user = await services.userService.findById(req.user);
+
+    if (!user) throw new NotFoundException('user not found');
+    if (!(await user.doesPasswordMatch(req.params.password))) throw new BadRequestException('password is incorrect');
+
+    if (!(await user.remove())) throw new InternalServerErrorException('cannot process request');
+
+    SuccessResponse({ res, body: { msg: 'account deleted' } });
   }
 }

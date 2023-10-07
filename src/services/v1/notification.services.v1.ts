@@ -14,7 +14,15 @@ export class NotificationService extends DolphServiceHandler<Dolph> {
     super('notification');
   }
 
-  public readonly create = async (body: INotification) => {
+  public readonly create = async (body: any) => {
     return this.notificationModel.create(body);
+  };
+
+  public readonly send = async (body: any) => {
+    /**
+     * TODO: should send to websocket
+     */
+
+    return this.create(body);
   };
 }
