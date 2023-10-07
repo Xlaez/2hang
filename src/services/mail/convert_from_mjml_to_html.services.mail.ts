@@ -10,7 +10,9 @@ const sendAvtivateAccountMail = readFileSync(
 const sendRegistrationSuccessfulMail = readFileSync(
   resolve(__dirname, './templates/auth/registration_successful.template.mjml'),
 ).toString();
+const sendForogtPasswordMail = readFileSync(resolve(__dirname, './templates/auth/forgot_password.template.mjml')).toString();
 
 export const sendOtpMailTemplate = compile(mjml2html(sendOtpMail).html);
 export const sendAvtivateAccountMailTemplate = compile(mjml2html(sendAvtivateAccountMail).html);
 export const sendRegistrationSuccessfulMailTemplate = compile(mjml2html(sendRegistrationSuccessfulMail).html);
+export const sendForogtPasswordMailTemplate = compile(mjml2html(sendForogtPasswordMail).html);
