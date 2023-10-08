@@ -4,3 +4,4 @@ export const comments = 'comments';
 export const notifications = 'notifications';
 export const hangouts = 'hangouts';
 export const hangoutsRequets = 'hangout_requests';
+export const reports = 'reports';

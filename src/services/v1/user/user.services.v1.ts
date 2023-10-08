@@ -266,4 +266,47 @@ export class UserService extends DolphServiceHandler<Dolph> {
       },
     );
   };
+
+  public readonly getUsersInCountry = async (country: string, limit: number, page: number) => {
+    const options = {
+      lean: true,
+      customLabels: paginationLabels,
+    };
+
+    //@ts-expect-error
+    return this.userModel.paginate(
+      { 'location.country': country },
+
+      {
+        ...(limit ? { limit } : { limit: 10 }),
+        page,
+        sort: 'asc',
+        select: ['display_name', 'username', 'profile_img', 'hangouts', 'gender', 'location', 'createdAt'],
+        ...options,
+      },
+    );
+  };
+
+  // Ask CHAT-GPT how to write logic for getting mutual hangouts
+  public readonly getMutualHangouts = async (currentUser_id: string, user_id: string, limit: number, page: number) => {
+    const options = {
+      lean: true,
+      customLabels: paginationLabels,
+    };
+
+    //@ts-expect-error
+    return this.hangoutModel.paginate(
+      {},
+
+      {
+        ...(limit ? { limit } : { limit: 10 }),
+        page,
+        sort: 'asc',
+        select: ['display_name', 'username', 'profile_img', 'hangouts', 'gender', 'location', 'createdAt'],
+        ...options,
+      },
+    );
+  };
 }
+
+// are users hangouts
