@@ -1,7 +1,8 @@
 import { mongoose } from '@dolphjs/dolph/packages';
 import { posts, users } from './constants';
 import { transformDoc } from '@dolphjs/dolph/packages';
-import { Pagination, mongoosePagination } from 'mongoose-paginate-ts';
+import paginate = require('mongoose-paginate-v2');
+
 import { IPost } from './interfaces';
 
 const PostSchema = new mongoose.Schema(
@@ -29,6 +30,9 @@ const PostSchema = new mongoose.Schema(
 );
 
 PostSchema.plugin(transformDoc);
-PostSchema.plugin(mongoosePagination);
+PostSchema.plugin(paginate);
 
-export const PostModel: Pagination<IPost> = mongoose.model<IPost, Pagination<IPost>>(posts, PostSchema);
+export const PostModel: mongoose.PaginateModel<IPost> = mongoose.model<IPost, mongoose.PaginateModel<IPost>>(
+  posts,
+  PostSchema,
+);

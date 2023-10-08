@@ -1,7 +1,8 @@
 import { mongoose } from '@dolphjs/dolph/packages';
 import { notifications, users } from './constants';
 import { transformDoc } from '@dolphjs/dolph/packages';
-import { Pagination, mongoosePagination } from 'mongoose-paginate-ts';
+import paginate = require('mongoose-paginate-v2');
+
 import { INotification } from './interfaces/notification.model.interfaces';
 
 const NotificationSchema = new mongoose.Schema(
@@ -35,9 +36,9 @@ const NotificationSchema = new mongoose.Schema(
 );
 
 NotificationSchema.plugin(transformDoc);
-NotificationSchema.plugin(mongoosePagination);
+NotificationSchema.plugin(paginate);
 
-export const NotificationModel: Pagination<INotification> = mongoose.model<INotification, Pagination<INotification>>(
-  notifications,
-  NotificationSchema,
-);
+export const NotificationModel: mongoose.PaginateModel<INotification> = mongoose.model<
+  INotification,
+  mongoose.PaginateModel<INotification>
+>(notifications, NotificationSchema);

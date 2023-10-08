@@ -2,7 +2,8 @@ import { mongoose } from '@dolphjs/dolph/packages';
 import { transformDoc } from '@dolphjs/dolph/packages';
 
 import { users } from './constants';
-import { Pagination, mongoosePagination } from 'mongoose-paginate-ts';
+import paginate = require('mongoose-paginate-v2');
+
 import { IUser } from './interfaces';
 import { generateRandomNumbers } from '../utils';
 import { compareWithBcryptHash, hashWithArgon, hashWithBcrypt, verifyArgonHash } from '@dolphjs/dolph/utilities';
@@ -64,6 +65,7 @@ const UserSchema = new mongoose.Schema(
       default: 'offline',
     },
     device_id: [{ type: String }],
+    interests: [{ type: String }],
     email_verified: {
       type: Boolean,
       default: false,
@@ -71,6 +73,18 @@ const UserSchema = new mongoose.Schema(
     phone_verified: {
       type: Boolean,
       default: false,
+    },
+    hangouts: {
+      type: Number,
+      default: 0,
+    },
+    hangout_req: {
+      type: Number,
+      default: 0,
+    },
+    sent_hangout_req: {
+      type: Number,
+      default: 0,
     },
     gender: {
       type: String,
@@ -108,7 +122,7 @@ const UserSchema = new mongoose.Schema(
 );
 
 UserSchema.plugin(transformDoc);
-UserSchema.plugin(mongoosePagination);
+UserSchema.plugin(paginate);
 
 UserSchema.methods.generateOtp = async function () {
   const user = this as IUser;
@@ -124,4 +138,7 @@ UserSchema.methods.doesPasswordMatch = async function (password: string): Promis
   return compareWithBcryptHash({ pureString: password, hashString: user.password });
 };
 
-export const UserModel: Pagination<IUser> = mongoose.model<IUser, Pagination<IUser>>(users, UserSchema);
+export const UserModel: mongoose.PaginateModel<IUser> = mongoose.model<IUser, mongoose.PaginateModel<IUser>>(
+  users,
+  UserSchema,
+);
