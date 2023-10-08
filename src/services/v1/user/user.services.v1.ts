@@ -198,4 +198,72 @@ export class UserService extends DolphServiceHandler<Dolph> {
     );
     return users;
   };
+
+  public readonly cancelHangoutRequest = async (request_id: string) => {
+    const session = await this.hangRequestModel.startSession();
+
+    await session.withTransaction(
+      async () => {
+        const request = await this.hangRequestModel.findByIdAndDelete(request_id, session);
+        if (!request) {
+          await session.abortTransaction();
+          throw new InternalServerErrorException('cannot proceed with request');
+        }
+
+        if (!(await this.userModel.findByIdAndUpdate(request.sender, { $inc: { sent_hangout_req: -1 } }, session))) {
+          await session.abortTransaction();
+          throw new InternalServerErrorException('cannot proceed with request');
+        }
+
+        if (!(await this.userModel.findByIdAndUpdate(request.receiver, { $inc: { hangout_req: -1 } }, session))) {
+          await session.abortTransaction();
+          throw new InternalServerErrorException('cannot proceed with request');
+        }
+      },
+      { readPreference: 'primary', readConcern: { level: 'local' }, writeConcern: { w: 'majority' } },
+    );
+    return true;
+  };
+
+  public readonly queryUserByKeyword = async (keyword: string, limit: number, page: number) => {
+    const options = {
+      lean: true,
+      customLabels: paginationLabels,
+    };
+
+    //@ts-expect-error
+    return this.userModel.paginate(
+      {
+        $or: [{ display_name: { $regex: keyword, $options: 'i' } }, { username: { $regex: keyword, $options: 'i' } }],
+      },
+      {
+        ...(limit ? { limit } : { limit: 10 }),
+        page,
+        sort: 'asc',
+        select: ['display_name', 'username', 'profile_img', 'hangouts', 'gender', 'location', 'createdAt'],
+        ...options,
+      },
+    );
+  };
+
+  public readonly getUsersInALocation = async (state: string, country: string, limit: number, page: number) => {
+    const options = {
+      lean: true,
+      customLabels: paginationLabels,
+    };
+
+    //@ts-expect-error
+    return this.userModel.paginate(
+      {
+        $and: [{ 'location.state': state }, { 'location.country': country }],
+      },
+      {
+        ...(limit ? { limit } : { limit: 10 }),
+        page,
+        sort: 'asc',
+        select: ['display_name', 'username', 'profile_img', 'hangouts', 'gender', 'location', 'createdAt'],
+        ...options,
+      },
+    );
+  };
 }

@@ -55,3 +55,11 @@ export const updateUser = {
     }),
   }),
 };
+
+export const searchUserByKeyword = {
+  query: Joi.object().keys({
+    keyword: Joi.string().required().trim(),
+    limit: Joi.string().required(),
+    page: Joi.string().required(),
+  }),
+};

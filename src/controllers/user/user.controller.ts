@@ -1,6 +1,7 @@
 import { configs } from '@/src/configs';
 import { Authorization } from '@/src/decorators';
 import { sterilizeUserData } from '@/src/helpers/sterilize_data.hepers';
+import { uploadOneToCloud } from '@/src/services/helpers';
 import { Services } from '@/src/services/v1';
 import { DolphControllerHandler } from '@dolphjs/dolph/classes';
 import {
@@ -11,6 +12,7 @@ import {
   SuccessResponse,
   TryCatchAsyncDec,
 } from '@dolphjs/dolph/common';
+import { MediaParser } from '@dolphjs/dolph/utilities';
 import { Request, Response } from 'express';
 
 const services = new Services();
@@ -124,13 +126,64 @@ export class UserController extends DolphControllerHandler<Dolph> {
 
   @TryCatchAsyncDec
   @Authorization(configs.jwt.secret)
+  public async cancelHangoutRequest(req: Request, res: Response) {
+    await services.userService.cancelHangoutRequest(req.body.request_id);
+    SuccessResponse({ res, body: { msg: 'request cancelled successfully' } });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
   public async getHangoutRequests(req: Request, res: Response) {
     const { limit, page } = req.query;
     const requests = await services.userService.getHangoutRequests(req.user.toString(), +limit, +page);
     if (!requests) throw new NotFoundException('user has no hangouts');
     SuccessResponse({ res, body: requests });
   }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  @MediaParser({ fieldname: 'upload', type: 'single', extensions: ['.png', '.jpeg', '.jpg'] })
+  public async updateProfileImg(req: Request, res: Response) {
+    //@ts-expect-error
+    const url = await uploadOneToCloud(req.file.path);
+    if (!url) throw new InternalServerErrorException('cannot process request');
+
+    const user = await services.userService.updateBylD(req.user, { profile_img: url });
+
+    if (!user) throw new InternalServerErrorException('cannot proccess request');
+
+    SuccessResponse({ res, body: user });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async searchUserByKeyword(req: Request, res: Response) {
+    const { keyword, limit, page } = req.query;
+
+    const users = await services.userService.queryUserByKeyword(keyword.toString(), +limit, +page);
+    if (!users.docs?.length) throw new NotFoundException('user not found');
+    SuccessResponse({ res, body: users });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async getUserInLocation(req: Request, res: Response) {
+    const { limit, page } = req.query;
+
+    const user = await services.userService.findById(req.user);
+
+    const users = await services.userService.getUsersInALocation(user.location.state, user.location.country, +limit, +page);
+
+    if (!users.docs?.length) throw new NotFoundException('user not found');
+    SuccessResponse({ res, body: users });
+  }
 }
 
 // Type of posts depending on what user is posting - fact, solution, idea, problem, opinion, random, image
 // Get user interest after registering users
+// Add reporting features
+
+// get users by location
+// update interests
+// get users by interest
+// get users with mutual hangouts -- you might wanna hangout

@@ -5,6 +5,7 @@ import {
   getUserByID,
   getUserByUsername,
   getUserHangouts,
+  searchUserByKeyword,
   sendHangoutRequest,
   updateUser,
 } from '@/src/validations';
@@ -26,13 +27,25 @@ export class UserRouter extends DolphRouteHandler<Dolph> {
 
     // * GET REQUESTS =====================================
     this.router.get(`${this.path}/profile`, this.controller.getProfile);
+
     this.router.get(`${this.path}/profile/:user_id`, reqValidatorMiddleware(getUserByID), this.controller.getUserByID);
+
     this.router.get(`${this.path}/hangouts`, reqValidatorMiddleware(getUserHangouts), this.controller.getHangouts);
+
     this.router.get(
       `${this.path}/hangouts/requests`,
       reqValidatorMiddleware(getHangoutRequest),
       this.controller.getHangoutRequests,
     );
+
+    this.router.get(`${this.path}/query`, reqValidatorMiddleware(searchUserByKeyword), this.controller.searchUserByKeyword);
+
+    this.router.get(
+      `${this.path}/my-location`,
+      reqValidatorMiddleware(getHangoutRequest),
+      this.controller.searchUserByKeyword,
+    );
+
     this.router.get(`${this.path}/:username`, reqValidatorMiddleware(getUserByUsername), this.controller.getUserByUsername);
 
     //* POST REQUESTS =====================================
@@ -48,8 +61,15 @@ export class UserRouter extends DolphRouteHandler<Dolph> {
       this.controller.acceptHangoutRequest,
     );
 
+    this.router.post(
+      `${this.path}/cancel-hangout`,
+      reqValidatorMiddleware(acceptHagoutrequest),
+      this.controller.cancelHangoutRequest,
+    );
+
     //  * PUT REQUESTS ======================================
 
     this.router.put(`${this.path}/profile`, reqValidatorMiddleware(updateUser), this.controller.updateProfille);
+    this.router.put(`${this.path}/profile-img`, this.controller.updateProfileImg);
   }
 }
