@@ -198,4 +198,30 @@ export class UserService extends DolphServiceHandler<Dolph> {
     );
     return users;
   };
+
+  public readonly cancelHangoutRequest = async (request_id: string) => {
+    const session = await this.hangRequestModel.startSession();
+
+    await session.withTransaction(
+      async () => {
+        const request = await this.hangRequestModel.findByIdAndDelete(request_id, session);
+        if (!request) {
+          await session.abortTransaction();
+          throw new InternalServerErrorException('cannot proceed with request');
+        }
+
+        if (!(await this.userModel.findByIdAndUpdate(request.sender, { $inc: { sent_hangout_req: -1 } }, session))) {
+          await session.abortTransaction();
+          throw new InternalServerErrorException('cannot proceed with request');
+        }
+
+        if (!(await this.userModel.findByIdAndUpdate(request.receiver, { $inc: { hangout_req: -1 } }, session))) {
+          await session.abortTransaction();
+          throw new InternalServerErrorException('cannot proceed with request');
+        }
+      },
+      { readPreference: 'primary', readConcern: { level: 'local' }, writeConcern: { w: 'majority' } },
+    );
+    return true;
+  };
 }

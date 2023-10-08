@@ -48,8 +48,15 @@ export class UserRouter extends DolphRouteHandler<Dolph> {
       this.controller.acceptHangoutRequest,
     );
 
+    this.router.post(
+      `${this.path}/cancel-hangout`,
+      reqValidatorMiddleware(acceptHagoutrequest),
+      this.controller.cancelHangoutRequest,
+    );
+
     //  * PUT REQUESTS ======================================
 
     this.router.put(`${this.path}/profile`, reqValidatorMiddleware(updateUser), this.controller.updateProfille);
+    this.router.put(`${this.path}/profile-img`, this.controller.updateProfileImg);
   }
 }
