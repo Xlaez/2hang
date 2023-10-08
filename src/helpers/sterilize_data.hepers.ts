@@ -44,3 +44,12 @@ export const sterilizeUserData = (user: IUser) => {
     account_disabled,
   };
 };
+
+export const sterilizeMultipleUserData = (users: IUser[]) => {
+  let usersData: IUser[] = [];
+  users.map((user) => {
+    //@ts-expect-error
+    usersData.push(sterilizeUserData(user));
+  });
+  return usersData;
+};

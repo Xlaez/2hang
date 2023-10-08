@@ -161,7 +161,7 @@ export class UserController extends DolphControllerHandler<Dolph> {
     const { keyword, limit, page } = req.query;
 
     const users = await services.userService.queryUserByKeyword(keyword.toString(), +limit, +page);
-    if (!users.docs?.length) throw new NotFoundException('user not found');
+    if (!users) throw new NotFoundException('user not found');
     SuccessResponse({ res, body: users });
   }
 
@@ -174,7 +174,6 @@ export class UserController extends DolphControllerHandler<Dolph> {
 
     const users = await services.userService.getUsersInALocation(user.location.state, user.location.country, +limit, +page);
 
-    if (!users.docs?.length) throw new NotFoundException('user not found');
     SuccessResponse({ res, body: users });
   }
 
@@ -189,7 +188,6 @@ export class UserController extends DolphControllerHandler<Dolph> {
 
     const users = await services.userService.getUsersInCountry(user.location.country, +limit, +page);
 
-    if (!users.docs?.length) throw new NotFoundException('user not found');
     SuccessResponse({ res, body: users });
   }
 
