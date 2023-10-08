@@ -224,4 +224,46 @@ export class UserService extends DolphServiceHandler<Dolph> {
     );
     return true;
   };
+
+  public readonly queryUserByKeyword = async (keyword: string, limit: number, page: number) => {
+    const options = {
+      lean: true,
+      customLabels: paginationLabels,
+    };
+
+    //@ts-expect-error
+    return this.userModel.paginate(
+      {
+        $or: [{ display_name: { $regex: keyword, $options: 'i' } }, { username: { $regex: keyword, $options: 'i' } }],
+      },
+      {
+        ...(limit ? { limit } : { limit: 10 }),
+        page,
+        sort: 'asc',
+        select: ['display_name', 'username', 'profile_img', 'hangouts', 'gender', 'location', 'createdAt'],
+        ...options,
+      },
+    );
+  };
+
+  public readonly getUsersInALocation = async (state: string, country: string, limit: number, page: number) => {
+    const options = {
+      lean: true,
+      customLabels: paginationLabels,
+    };
+
+    //@ts-expect-error
+    return this.userModel.paginate(
+      {
+        $and: [{ 'location.state': state }, { 'location.country': country }],
+      },
+      {
+        ...(limit ? { limit } : { limit: 10 }),
+        page,
+        sort: 'asc',
+        select: ['display_name', 'username', 'profile_img', 'hangouts', 'gender', 'location', 'createdAt'],
+        ...options,
+      },
+    );
+  };
 }

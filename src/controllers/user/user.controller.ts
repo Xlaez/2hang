@@ -154,7 +154,36 @@ export class UserController extends DolphControllerHandler<Dolph> {
 
     SuccessResponse({ res, body: user });
   }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async searchUserByKeyword(req: Request, res: Response) {
+    const { keyword, limit, page } = req.query;
+
+    const users = await services.userService.queryUserByKeyword(keyword.toString(), +limit, +page);
+    if (!users.docs?.length) throw new NotFoundException('user not found');
+    SuccessResponse({ res, body: users });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async getUserInLocation(req: Request, res: Response) {
+    const { limit, page } = req.query;
+
+    const user = await services.userService.findById(req.user);
+
+    const users = await services.userService.getUsersInALocation(user.location.state, user.location.country, +limit, +page);
+
+    if (!users.docs?.length) throw new NotFoundException('user not found');
+    SuccessResponse({ res, body: users });
+  }
 }
 
 // Type of posts depending on what user is posting - fact, solution, idea, problem, opinion, random, image
 // Get user interest after registering users
+// Add reporting features
+
+// get users by location
+// update interests
+// get users by interest
+// get users with mutual hangouts -- you might wanna hangout
