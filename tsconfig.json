@@ -9,7 +9,7 @@
     "strictFunctionTypes": false,
     "forceConsistentCasingInFileNames": true,
     "target": "ES2022",
-    "baseUrl": ".",
+    "baseUrl": "src",
     "outDir": "app",
     "pretty": true,
     "module": "commonjs",

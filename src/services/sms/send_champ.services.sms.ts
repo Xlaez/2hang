@@ -1,4 +1,4 @@
-import { configs } from '@/src/configs';
+import { configs } from '@/configs';
 
 export const sendsms = async (receiver: string, message: string) => {
   try {

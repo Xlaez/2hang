@@ -63,3 +63,9 @@ export const searchUserByKeyword = {
     page: Joi.string().required(),
   }),
 };
+
+export const updateInterests = {
+  body: Joi.object().keys({
+    interests: Joi.array().required(),
+  }),
+};

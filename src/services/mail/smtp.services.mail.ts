@@ -1,4 +1,4 @@
-import { configs } from '@/src/configs';
+import { configs } from '@/configs';
 import { createTransport } from 'nodemailer';
 
 const transport = createTransport({

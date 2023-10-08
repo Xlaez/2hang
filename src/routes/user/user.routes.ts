@@ -1,4 +1,4 @@
-import { UserController } from '@/src/controllers/user/user.controller';
+import { UserController } from '@/controllers/user/user.controller';
 import {
   acceptHagoutrequest,
   getHangoutRequest,
@@ -7,8 +7,9 @@ import {
   getUserHangouts,
   searchUserByKeyword,
   sendHangoutRequest,
+  updateInterests,
   updateUser,
-} from '@/src/validations';
+} from '@/validations';
 import { DolphControllerHandler, DolphRouteHandler } from '@dolphjs/dolph/classes';
 import { Dolph, reqValidatorMiddleware } from '@dolphjs/dolph/common';
 import cookieParser = require('cookie-parser');
@@ -43,10 +44,18 @@ export class UserRouter extends DolphRouteHandler<Dolph> {
     this.router.get(
       `${this.path}/my-location`,
       reqValidatorMiddleware(getHangoutRequest),
-      this.controller.searchUserByKeyword,
+      this.controller.getUserInLocation,
     );
 
+    this.router.get(`${this.path}/my-country`, reqValidatorMiddleware(getHangoutRequest), this.controller.getUsersInCountry);
+
     this.router.get(`${this.path}/:username`, reqValidatorMiddleware(getUserByUsername), this.controller.getUserByUsername);
+
+    this.router.get(
+      `${this.path}/mutual-hangouts`,
+      reqValidatorMiddleware(getUserHangouts),
+      this.controller.getMutualHangouts,
+    );
 
     //* POST REQUESTS =====================================
     this.router.post(
@@ -71,5 +80,10 @@ export class UserRouter extends DolphRouteHandler<Dolph> {
 
     this.router.put(`${this.path}/profile`, reqValidatorMiddleware(updateUser), this.controller.updateProfille);
     this.router.put(`${this.path}/profile-img`, this.controller.updateProfileImg);
+    this.router.put(
+      `${this.path}/update-interest`,
+      reqValidatorMiddleware(updateInterests),
+      this.controller.updateUserInterest,
+    );
   }
 }

@@ -1,11 +1,11 @@
-import { HangRequestModel, IHangout, IUser, UserModel, HangoutModel, IHangRequest } from '@/src/models';
+import { HangRequestModel, IHangout, IUser, UserModel, HangoutModel, IHangRequest } from '@/models';
 import { DolphServiceHandler } from '@dolphjs/dolph/classes';
 import { Dolph, InternalServerErrorException, TryCatchAsyncDec } from '@dolphjs/dolph/common';
 import { mongoose } from '@dolphjs/dolph/packages';
 import { InjectMongo } from '@dolphjs/dolph/decorators';
 import paginate = require('mongoose-paginate-v2');
 import { paginationLabels } from '../../helpers';
-import { transactionOptions } from '@/src/constants';
+import { transactionOptions } from '@/constants';
 
 @InjectMongo('userModel', UserModel)
 @InjectMongo('hangoutModel', HangoutModel)
@@ -266,4 +266,47 @@ export class UserService extends DolphServiceHandler<Dolph> {
       },
     );
   };
+
+  public readonly getUsersInCountry = async (country: string, limit: number, page: number) => {
+    const options = {
+      lean: true,
+      customLabels: paginationLabels,
+    };
+
+    //@ts-expect-error
+    return this.userModel.paginate(
+      { 'location.country': country },
+
+      {
+        ...(limit ? { limit } : { limit: 10 }),
+        page,
+        sort: 'asc',
+        select: ['display_name', 'username', 'profile_img', 'hangouts', 'gender', 'location', 'createdAt'],
+        ...options,
+      },
+    );
+  };
+
+  // Ask CHAT-GPT how to write logic for getting mutual hangouts
+  public readonly getMutualHangouts = async (currentUser_id: string, user_id: string, limit: number, page: number) => {
+    const options = {
+      lean: true,
+      customLabels: paginationLabels,
+    };
+
+    //@ts-expect-error
+    return this.hangoutModel.paginate(
+      {},
+
+      {
+        ...(limit ? { limit } : { limit: 10 }),
+        page,
+        sort: 'asc',
+        select: ['display_name', 'username', 'profile_img', 'hangouts', 'gender', 'location', 'createdAt'],
+        ...options,
+      },
+    );
+  };
 }
+
+// are users hangouts

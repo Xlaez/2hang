@@ -1,8 +1,8 @@
-import { configs } from '@/src/configs';
-import { Authorization } from '@/src/decorators';
-import { sterilizeUserData } from '@/src/helpers/sterilize_data.hepers';
-import { uploadOneToCloud } from '@/src/services/helpers';
-import { Services } from '@/src/services/v1';
+import { configs } from '@/configs';
+import { Authorization } from '@/decorators';
+import { sterilizeUserData } from '@/helpers/sterilize_data.hepers';
+import { uploadOneToCloud } from '@/services/helpers';
+import { Services } from '@/services/v1';
 import { DolphControllerHandler } from '@dolphjs/dolph/classes';
 import {
   BadRequestException,
@@ -177,13 +177,48 @@ export class UserController extends DolphControllerHandler<Dolph> {
     if (!users.docs?.length) throw new NotFoundException('user not found');
     SuccessResponse({ res, body: users });
   }
+
+  // Used when user just creates an account
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async getUsersInCountry(req: Request, res: Response) {
+    const { limit, page } = req.query;
+
+    const user = await services.userService.findById(req.user);
+
+    const users = await services.userService.getUsersInCountry(user.location.country, +limit, +page);
+
+    if (!users.docs?.length) throw new NotFoundException('user not found');
+    SuccessResponse({ res, body: users });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async updateUserInterest(req: Request, res: Response) {
+    const user = await services.userService.updateBylD(req.user.toString(), { interests: req.body.interests });
+    if (!user) throw new InternalServerErrorException('cannot process request');
+
+    SuccessResponse({ res, body: user });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async getMutualHangouts(req: Request, res: Response) {
+    const { limit, page, user_id } = req.query;
+
+    const users = await services.userService.getMutualHangouts(req.user.toString(), user_id.toString(), +limit, +page);
+
+    SuccessResponse({ res, body: users });
+  }
 }
 
 // Type of posts depending on what user is posting - fact, solution, idea, problem, opinion, random, image
 // Get user interest after registering users
 // Add reporting features
 
-// get users by location
 // update interests
 // get users by interest
 // get users with mutual hangouts -- you might wanna hangout
+
+// notifications would be like - James has shared an idea, itoro has a solution
