@@ -6,6 +6,7 @@ import { InjectMongo } from '@dolphjs/dolph/decorators';
 import paginate = require('mongoose-paginate-v2');
 import { paginationLabels } from '../../helpers';
 import { transactionOptions } from '@/constants';
+import { sterilizeMultipleUserData } from '@/helpers/sterilize_data.hepers';
 
 @InjectMongo('userModel', UserModel)
 @InjectMongo('hangoutModel', HangoutModel)
@@ -287,26 +288,46 @@ export class UserService extends DolphServiceHandler<Dolph> {
     );
   };
 
-  // Ask CHAT-GPT how to write logic for getting mutual hangouts
-  public readonly getMutualHangouts = async (currentUser_id: string, user_id: string, limit: number, page: number) => {
-    const options = {
-      lean: true,
-      customLabels: paginationLabels,
-    };
+  /**
+   * TODO: if user is part of the mutual hangouts, it adds it self to the list and makes it a +1, fix this!
+   */
+  public async getMutualHangouts(currentUserIdString: string, userIdString: string, limit: number, page: number) {
+    const currentUser_id = new mongoose.Types.ObjectId(currentUserIdString);
 
-    //@ts-expect-error
-    return this.hangoutModel.paginate(
-      {},
+    const user_id = new mongoose.Types.ObjectId(userIdString);
 
-      {
-        ...(limit ? { limit } : { limit: 10 }),
-        page,
-        sort: 'asc',
-        select: ['display_name', 'username', 'profile_img', 'hangouts', 'gender', 'location', 'createdAt'],
-        ...options,
-      },
-    );
-  };
+    try {
+      const currentUsersHangouts = await this.hangoutModel.findOne({ users: { $in: currentUser_id } }).exec();
+
+      const otherUsersHangouts = await this.hangoutModel.findOne({ users: { $in: user_id } }).exec();
+
+      if (!currentUsersHangouts || !otherUsersHangouts) return { mutualalHangouts: [], totalMutualHangouts: 0, page, limit };
+
+      const currentUsersHangoutsIds: string[] = currentUsersHangouts.users.map((user) => user.toString());
+      const otherUsersHangoutsIds: string[] = otherUsersHangouts.users.map((user) => user.toString());
+
+      const mutualHangoutsIds = currentUsersHangoutsIds.filter((id) => {
+        if (otherUsersHangoutsIds.includes(id)) {
+          if (id !== currentUserIdString) return otherUsersHangoutsIds.includes(id);
+        }
+      });
+
+      const startAt = (page - 1) * limit;
+      const endAt = page * limit;
+
+      const paginatedMutualHangoutsIds = mutualHangoutsIds.slice(startAt, endAt);
+
+      const totalMutualHangouts = mutualHangoutsIds.length;
+
+      const mutualalHangouts = await this.userModel
+        .find({ $and: [{ _id: { $in: paginatedMutualHangoutsIds } }, { _id: { $ne: currentUserIdString } }] })
+        .exec();
+
+      return { mutualalHangouts: sterilizeMultipleUserData(mutualalHangouts), totalMutualHangouts, page, limit };
+    } catch (e) {
+      throw e;
+    }
+  }
 }
 
 // are users hangouts

@@ -49,13 +49,13 @@ export class UserRouter extends DolphRouteHandler<Dolph> {
 
     this.router.get(`${this.path}/my-country`, reqValidatorMiddleware(getHangoutRequest), this.controller.getUsersInCountry);
 
-    this.router.get(`${this.path}/:username`, reqValidatorMiddleware(getUserByUsername), this.controller.getUserByUsername);
-
     this.router.get(
       `${this.path}/mutual-hangouts`,
       reqValidatorMiddleware(getUserHangouts),
       this.controller.getMutualHangouts,
     );
+
+    this.router.get(`${this.path}/:username`, reqValidatorMiddleware(getUserByUsername), this.controller.getUserByUsername);
 
     //* POST REQUESTS =====================================
     this.router.post(
