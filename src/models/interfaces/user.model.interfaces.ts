@@ -1,5 +1,5 @@
 import { mongoose } from '@dolphjs/dolph/packages';
-import { authType, role, status } from '../types';
+import { authType, interestType, role, status } from '../types';
 
 export interface UserLocation {
   state: string;
@@ -27,6 +27,10 @@ export interface IUser extends mongoose.Document {
   device_id: string[];
   email_verified: boolean;
   phone_verified: boolean;
+  hangouts: number;
+  hangout_req: number;
+  sent_hangout_req: number;
+  interests: interestType;
   gender: string;
   location: UserLocation;
   socials: UserSocials;
