@@ -1,4 +1,4 @@
-import { configs } from '@/src/configs';
+import { configs } from '@/configs';
 import { generateJWTwithHMAC } from '@dolphjs/dolph/utilities';
 import moment = require('moment');
 import { Types } from 'mongoose';

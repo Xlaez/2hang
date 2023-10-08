@@ -1,8 +1,8 @@
-import { configs } from '@/src/configs';
-import { Authorization } from '@/src/decorators';
-import { sterilizeUserData } from '@/src/helpers/sterilize_data.hepers';
-import { uploadOneToCloud } from '@/src/services/helpers';
-import { Services } from '@/src/services/v1';
+import { configs } from '@/configs';
+import { Authorization } from '@/decorators';
+import { sterilizeUserData } from '@/helpers/sterilize_data.hepers';
+import { uploadOneToCloud } from '@/services/helpers';
+import { Services } from '@/services/v1';
 import { DolphControllerHandler } from '@dolphjs/dolph/classes';
 import {
   BadRequestException,

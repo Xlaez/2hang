@@ -1,4 +1,4 @@
-import { UserController } from '@/src/controllers/user/user.controller';
+import { UserController } from '@/controllers/user/user.controller';
 import {
   acceptHagoutrequest,
   getHangoutRequest,
@@ -9,7 +9,7 @@ import {
   sendHangoutRequest,
   updateInterests,
   updateUser,
-} from '@/src/validations';
+} from '@/validations';
 import { DolphControllerHandler, DolphRouteHandler } from '@dolphjs/dolph/classes';
 import { Dolph, reqValidatorMiddleware } from '@dolphjs/dolph/common';
 import cookieParser = require('cookie-parser');

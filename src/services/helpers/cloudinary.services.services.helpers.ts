@@ -1,4 +1,4 @@
-import { configs } from '@/src/configs';
+import { configs } from '@/configs';
 import { InternalServerErrorException } from '@dolphjs/dolph/common';
 import { v2 } from 'cloudinary';
 

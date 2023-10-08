@@ -1,11 +1,11 @@
-import { HangRequestModel, IHangout, IUser, UserModel, HangoutModel, IHangRequest } from '@/src/models';
+import { HangRequestModel, IHangout, IUser, UserModel, HangoutModel, IHangRequest } from '@/models';
 import { DolphServiceHandler } from '@dolphjs/dolph/classes';
 import { Dolph, InternalServerErrorException, TryCatchAsyncDec } from '@dolphjs/dolph/common';
 import { mongoose } from '@dolphjs/dolph/packages';
 import { InjectMongo } from '@dolphjs/dolph/decorators';
 import paginate = require('mongoose-paginate-v2');
 import { paginationLabels } from '../../helpers';
-import { transactionOptions } from '@/src/constants';
+import { transactionOptions } from '@/constants';
 
 @InjectMongo('userModel', UserModel)
 @InjectMongo('hangoutModel', HangoutModel)

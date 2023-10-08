@@ -9,13 +9,15 @@
     "dev:start": "nodemon",
     "dev:docker:start": "docker-compose -f docker-compose-dev.yml up",
     "dev:docker:stop": "docker-compose -f docker-compose-dev.yml down",
+    "build": "swc src -d app --source-maps --copy-files",
     "build:tsc": "tsc && tsc-alias",
     "prettier": "prettier --check **/*.ts",
     "prettier:fix": "prettier --write **/*.ts",
     "lint": "eslint --ignore-path .gitignore --ext .ts src/",
     "lint:fix": "npm run lint -- --fix",
-    "prod:start": "node app/server.ts",
-    "start": "npm run prod:start"
+    "prod:start": "node app/server.js",
+    "clean": "rm -r app && rm -r logs",
+    "start": "npm run build & prod:start"
   },
   "dependencies": {
     "@dolphjs/dolph": "^1.0.2",

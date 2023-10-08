@@ -1,5 +1,5 @@
-import { AuthController } from '@/src/controllers/auth.controllers';
-import { login, newUser, restetPassword, sendOtp, sendPhoneOtp, verifyEmail, verifyPhoneNo } from '@/src/validations';
+import { AuthController } from '@/controllers/auth.controllers';
+import { login, newUser, restetPassword, sendOtp, sendPhoneOtp, verifyEmail, verifyPhoneNo } from '@/validations';
 import { DolphRouteHandler } from '@dolphjs/dolph/classes';
 import { Dolph, reqValidatorMiddleware } from '@dolphjs/dolph/common';
 import cookieParser = require('cookie-parser');
