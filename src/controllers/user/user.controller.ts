@@ -66,10 +66,20 @@ export class UserController extends DolphControllerHandler<Dolph> {
   public async getHangouts(req: Request, res: Response) {
     const { user_id, limit, page } = req.query;
 
-    const hangouts = await services.userService.getHangouts(user_id.toString(), +limit, +page);
+    let hangouts = await services.userService.getHangouts(user_id.toString(), +limit, +page);
 
     if (!hangouts) throw new NotFoundException('user currently has no hangouts');
 
+    let docs = [];
+    hangouts.docs?.map((hangout) => {
+      if (hangout.users[0]._id.toString() === user_id.toString()) {
+        docs.push(hangout.users[1]);
+      } else if (hangout.users[1]._id.toString() === user_id.toString()) {
+        docs.push(hangout.users[0]);
+      }
+    });
+
+    hangouts.docs = docs;
     SuccessResponse({ res, body: hangouts });
   }
 
@@ -137,6 +147,7 @@ export class UserController extends DolphControllerHandler<Dolph> {
     const { limit, page } = req.query;
     const requests = await services.userService.getHangoutRequests(req.user.toString(), +limit, +page);
     if (!requests) throw new NotFoundException('user has no hangouts');
+
     SuccessResponse({ res, body: requests });
   }
 
@@ -215,7 +226,6 @@ export class UserController extends DolphControllerHandler<Dolph> {
 // Get user interest after registering users
 // Add reporting features
 
-// update interests
 // get users by interest
 // get users with mutual hangouts -- you might wanna hangout
 
