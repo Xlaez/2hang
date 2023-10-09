@@ -23,4 +23,11 @@ export class NotificationService extends DolphServiceHandler<Dolph> {
 
     return this.create(body);
   };
+
+  public readonly sendToMany = async (body: any[]) => {
+    /**
+     * TODO: should send to websocket
+     */
+    return this.notificationModel.insertMany(body);
+  };
 }

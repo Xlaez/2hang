@@ -34,7 +34,8 @@
     "mongoose-paginate-v2": "^1.7.4",
     "nodemailer": "^6.9.5",
     "passport": "^0.6.0",
-    "passport-google-oauth2": "^0.2.0"
+    "passport-google-oauth2": "^0.2.0",
+    "toobusy-js": "^0.5.1"
   },
   "devDependencies": {
     "@swc/cli": "^0.1.62",
@@ -45,6 +46,7 @@
     "@types/nodemailer": "^6.4.11",
     "@types/passport": "^1.0.13",
     "@types/passport-google-oauth2": "^0.1.6",
+    "@types/toobusy-js": "^0.5.2",
     "@typescript-eslint/eslint-plugin": "^6.7.4",
     "@typescript-eslint/parser": "^6.7.4",
     "eslint": "^8.50.0",

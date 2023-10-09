@@ -17,11 +17,14 @@ const PostSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    catgeories: [{ type: String, required: true }],
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: users,
       required: true,
+    },
+    type: {
+      type: String,
+      enum: ['idea', 'problem', 'solution', 'opinion', 'random', 'thought'],
     },
   },
   {
@@ -36,3 +39,5 @@ export const PostModel: mongoose.PaginateModel<IPost> = mongoose.model<IPost, mo
   posts,
   PostSchema,
 );
+
+// V2 - add mood
