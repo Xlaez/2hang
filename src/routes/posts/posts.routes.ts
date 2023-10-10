@@ -1,5 +1,14 @@
 import { PostsController } from '@/controllers/posts/posts.controller';
-import { addReply, deletePost, editPost, getReplies, getResponds, newPost, queryPostsByType } from '@/validations';
+import {
+  addReply,
+  deletePost,
+  deleteReply,
+  editPost,
+  getReplies,
+  getResponds,
+  newPost,
+  queryPostsByType,
+} from '@/validations';
 import { DolphRouteHandler } from '@dolphjs/dolph/classes';
 import { Dolph, reqValidatorMiddleware } from '@dolphjs/dolph/common';
 
@@ -29,6 +38,10 @@ export class PostRouter extends DolphRouteHandler<Dolph> {
     this.router.put(`${this.path}`, reqValidatorMiddleware(editPost), this.controller.editPost);
 
     this.router.put(`${this.path}/like/:post_id`, reqValidatorMiddleware(deletePost), this.controller.LikePost);
+
+    this.router.put(`${this.path}/reply/like/:reply_id`, reqValidatorMiddleware(deleteReply), this.controller.likeReply);
+
+    this.router.delete(`${this.path}/reply:reply_id`, reqValidatorMiddleware(deleteReply), this.controller.deleteReply);
 
     this.router.delete(`${this.path}/:post_id`, reqValidatorMiddleware(deletePost), this.controller.deletePost);
   }

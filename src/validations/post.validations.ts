@@ -23,6 +23,12 @@ export const deletePost = {
   }),
 };
 
+export const deleteReply = {
+  params: Joi.object().keys({
+    reply_id: Joi.string().required(),
+  }),
+};
+
 export const queryPostsByType = {
   params: Joi.object().keys({
     limit: Joi.string().required(),

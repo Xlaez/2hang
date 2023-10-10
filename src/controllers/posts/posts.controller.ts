@@ -232,6 +232,58 @@ export class PostsController extends DolphControllerHandler<Dolph> {
     if (!replies) throw new NotFoundException('no responds for replies yet');
     SuccessResponse({ res, body: replies });
   }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async editReply(req: Request, res: Response) {
+    const { text, reply_id } = req.body;
+
+    const reply = await services.postService.updateReplyById(reply_id.toString(), { text });
+    if (!reply) throw new InternalServerErrorException('cannot process request');
+
+    SuccessResponse({ res, body: reply });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async deleteReply(req: Request, res: Response) {
+    const reply = await services.postService.findById(req.params.reply_id);
+    if (!reply) throw new NotFoundException('reply has already been deleted');
+
+    if (reply.owner.toString() !== req.user.toString())
+      throw new UnauthorizedException('you are not authorized, only the author can delete reply');
+
+    await reply.remove();
+
+    SuccessResponse({ res, body: { msg: 'reply deleted' } });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async likeReply(req: Request, res: Response) {
+    const hasUserLikedReply = await services.postService.hasLikedReply(req.user.toString(), req.params.reply_id.toString());
+
+    let returnResult: any;
+
+    if (hasUserLikedReply) {
+      // if user has liked reply then unlike
+      returnResult = await services.postService.updateReplyById(req.params.reply_id.toString(), {
+        $inc: { nb_likes: -1 },
+        $pull: { likes: { user: req.user.toString() } },
+      });
+
+      if (!returnResult) throw new InternalServerErrorException('cannot proccess request');
+    } else {
+      returnResult = await services.postService.updateReplyById(req.params.reply_id.toString(), {
+        $inc: { nb_likes: 1 },
+        $push: { likes: { user: req.user.toString() } },
+      });
+
+      if (!returnResult) throw new InternalServerErrorException('cannot proccess request');
+    }
+
+    SuccessResponse({ res, body: returnResult });
+  }
 }
 
 // Todo - block and unblok user

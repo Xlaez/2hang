@@ -50,7 +50,7 @@ export class PostService extends DolphServiceHandler<Dolph> {
   };
 
   public readonly updateById = async (id: string, body: any) => {
-    return this.postModel.findByIdAndUpdate(id, body);
+    return this.postModel.findByIdAndUpdate(id, body, { new: true });
   };
 
   public readonly hasLikedPost = async (userId: string, postId: string) => {
@@ -142,5 +142,9 @@ export class PostService extends DolphServiceHandler<Dolph> {
         populate: { path: 'owner', select: '_id, username display_name profile_img' },
       },
     );
+  };
+
+  public readonly updateReplyById = async (id: string, body: any) => {
+    return this.replyModel.findByIdAndUpdate(id, body, { new: true });
   };
 }
