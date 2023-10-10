@@ -8,3 +8,33 @@ export const newPost = {
     type: Joi.string().required(),
   }),
 };
+
+export const editPost = {
+  body: Joi.object().keys({
+    content: Joi.string().min(300),
+    public: Joi.boolean(),
+    post_id: Joi.string().required(),
+  }),
+};
+
+export const deletePost = {
+  params: Joi.object().keys({
+    post_id: Joi.string().required(),
+  }),
+};
+
+export const queryPostsByType = {
+  params: Joi.object().keys({
+    limit: Joi.string().required(),
+    page: Joi.string().required(),
+    type: Joi.string().required(),
+  }),
+};
+
+export const addReply = {
+  body: Joi.object().keys({
+    post_id: Joi.string().required(),
+    text: Joi.string().required(),
+    parent_id: Joi.string(),
+  }),
+};

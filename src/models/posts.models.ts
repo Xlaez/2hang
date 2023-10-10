@@ -4,6 +4,7 @@ import { transformDoc } from '@dolphjs/dolph/packages';
 import paginate = require('mongoose-paginate-v2');
 
 import { IPost } from './interfaces';
+import { LikeSchema } from './schemas';
 
 const PostSchema = new mongoose.Schema(
   {
@@ -26,6 +27,15 @@ const PostSchema = new mongoose.Schema(
       type: String,
       enum: ['idea', 'problem', 'solution', 'opinion', 'random', 'thought'],
     },
+    nb_replies: {
+      type: Number,
+      default: 0,
+    },
+    nb_likes: {
+      type: Number,
+      default: 0,
+    },
+    likes: [LikeSchema],
   },
   {
     timestamps: true,
