@@ -100,4 +100,47 @@ export class PostService extends DolphServiceHandler<Dolph> {
 
     return { post, reply };
   };
+
+  public readonly getReplies = async (
+    postId: string,
+    limit: number,
+    page: number,
+    orderBy?: string,
+    sortBy: string = 'asc',
+  ) => {
+    const options = {
+      lean: true,
+      customLabels: paginationLabels,
+    };
+
+    //@ts-expect-error
+    return this.replyModel.paginate(
+      { $and: [{ post_id: postId }, { is_child: false }] },
+      {
+        ...(limit ? { limit } : { limit: 20 }),
+        page,
+        sort: { [orderBy]: sortBy === 'asc' ? 1 : -1 },
+        ...options,
+        populate: { path: 'owner', select: '_id, username display_name profile_img' },
+      },
+    );
+  };
+
+  public readonly getResponds = async (postId: string, parentId: string, limit: number, page: number) => {
+    const options = {
+      lean: true,
+      customLabels: paginationLabels,
+    };
+
+    //@ts-expect-error
+    return this.replyModel.paginate(
+      { $and: [{ post_id: postId }, { is_child: true }, { parent_id: parentId }] },
+      {
+        ...(limit ? { limit } : { limit: 20 }),
+        page,
+        ...options,
+        populate: { path: 'owner', select: '_id, username display_name profile_img' },
+      },
+    );
+  };
 }

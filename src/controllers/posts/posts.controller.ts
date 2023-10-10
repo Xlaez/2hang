@@ -204,6 +204,34 @@ export class PostsController extends DolphControllerHandler<Dolph> {
 
     SuccessResponse({ res, body: post || reply });
   }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async getRepliesForPost(req: Request, res: Response) {
+    const { limit, page, sorted_by, order_by, post_id } = req.query;
+
+    const replies = await services.postService.getReplies(
+      post_id.toString(),
+      +limit,
+      +page,
+      order_by.toString(),
+      sorted_by.toString(),
+    );
+
+    if (!replies) throw new NotFoundException('no replies for post yet');
+    SuccessResponse({ res, body: replies });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async getRespondsForReplies(req: Request, res: Response) {
+    const { limit, page, parent_id, post_id } = req.query;
+
+    const replies = await services.postService.getResponds(post_id.toString(), parent_id.toString(), +limit, +page);
+
+    if (!replies) throw new NotFoundException('no responds for replies yet');
+    SuccessResponse({ res, body: replies });
+  }
 }
 
 // Todo - block and unblok user
