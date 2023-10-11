@@ -1,6 +1,8 @@
 import { UserController } from '@/controllers/user/user.controller';
 import {
   acceptHagoutrequest,
+  areUsersHangouts,
+  blockHangout,
   getHangoutRequest,
   getUserByID,
   getUserByUsername,
@@ -32,6 +34,8 @@ export class UserRouter extends DolphRouteHandler<Dolph> {
     this.router.get(`${this.path}/profile/:user_id`, reqValidatorMiddleware(getUserByID), this.controller.getUserByID);
 
     this.router.get(`${this.path}/hangouts`, reqValidatorMiddleware(getUserHangouts), this.controller.getHangouts);
+
+    this.router.get(`${this.path}/are-hangouts`, reqValidatorMiddleware(areUsersHangouts), this.controller.areUsersHangouts);
 
     this.router.get(
       `${this.path}/hangouts/requests`,
@@ -75,6 +79,10 @@ export class UserRouter extends DolphRouteHandler<Dolph> {
       reqValidatorMiddleware(acceptHagoutrequest),
       this.controller.cancelHangoutRequest,
     );
+
+    this.router.post(`${this.path}/block-hangout`, reqValidatorMiddleware(blockHangout), this.controller.blockUser);
+
+    this.router.post(`${this.path}/unblock-hangout`, reqValidatorMiddleware(blockHangout), this.controller.unBlockUser);
 
     //  * PUT REQUESTS ======================================
 

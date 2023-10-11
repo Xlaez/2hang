@@ -336,4 +336,8 @@ export class UserService extends DolphServiceHandler<Dolph> {
       throw e;
     }
   }
+
+  public readonly updateHangoutByID = async (id: string, body: any) => {
+    return this.hangoutModel.findByIdAndUpdate(id, body, { new: true });
+  };
 }

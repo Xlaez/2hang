@@ -1,1 +1,1 @@
-export type notifications = 'auth' | 'user' | 'follow' | 'post';
+export type notifications = 'auth' | 'user' | 'follow' | 'post' | 'reply';

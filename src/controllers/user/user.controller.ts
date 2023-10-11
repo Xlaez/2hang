@@ -220,6 +220,44 @@ export class UserController extends DolphControllerHandler<Dolph> {
 
     SuccessResponse({ res, body: users });
   }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async areUsersHangouts(req: Request, res: Response) {
+    const result = await services.userService.areUsersHangouts(req.user.toString(), req.query.user_id.toString());
+    console.log(result);
+    SuccessResponse({ res, body: result ? true : false });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async blockUser(req: Request, res: Response) {
+    const hangout = await services.userService.areUsersHangouts(req.user.toString(), req.body.user_id.toString());
+
+    if (!hangout) throw new BadRequestException("cannot block a user that's not in yout hangout list");
+
+    const result = await services.userService.updateHangoutByID(hangout.id, {
+      $addToSet: { blocked_ids: req.body.user_id },
+    });
+
+    if (!result) throw new InternalServerErrorException('cannot process request');
+
+    SuccessResponse({ res, body: result });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async unBlockUser(req: Request, res: Response) {
+    const hangout = await services.userService.areUsersHangouts(req.user.toString(), req.body.user_id.toString());
+
+    if (!hangout) throw new BadRequestException("cannot block a user that's not in yout hangout list");
+
+    const result = await services.userService.updateHangoutByID(hangout.id, { $pull: { blocked_ids: req.body.user_id } });
+
+    if (!result) throw new InternalServerErrorException('cannot process request');
+
+    SuccessResponse({ res, body: result });
+  }
 }
 
 // Type of posts depending on what user is posting - fact, solution, idea, problem, opinion, random, image
