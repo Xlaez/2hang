@@ -53,3 +53,18 @@ export const sterilizeMultipleUserData = (users: IUser[]) => {
   });
   return usersData;
 };
+
+export const minifyUserData = (user: IUser) => {
+  if (!user) return {};
+
+  const { id, username, profile_img, account_disabled, status, display_name, interests } = user;
+  return {
+    id,
+    username: `@${username}`,
+    profile_img,
+    status,
+    interests,
+    account_disabled,
+    display_name,
+  };
+};
