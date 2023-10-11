@@ -32,6 +32,12 @@ export const getUserHangouts = {
   }),
 };
 
+export const blockHangout = {
+  body: Joi.object().keys({
+    user_id: Joi.string().required(),
+  }),
+};
+
 export const getHangoutRequest = {
   query: Joi.object().keys({
     limit: Joi.string().required(),
@@ -67,5 +73,11 @@ export const searchUserByKeyword = {
 export const updateInterests = {
   body: Joi.object().keys({
     interests: Joi.array().required(),
+  }),
+};
+
+export const areUsersHangouts = {
+  query: Joi.object().keys({
+    user_id: Joi.string().required().trim(),
   }),
 };
