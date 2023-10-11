@@ -2,7 +2,7 @@ import Joi = require('joi');
 
 export const newPost = {
   body: Joi.object().keys({
-    content: Joi.string().required().min(300),
+    content: Joi.string().required().max(300),
     tags: Joi.array(),
     public: Joi.boolean(),
     type: Joi.string().required(),
@@ -11,9 +11,16 @@ export const newPost = {
 
 export const editPost = {
   body: Joi.object().keys({
-    content: Joi.string().min(300),
+    content: Joi.string().max(300),
     public: Joi.boolean(),
     post_id: Joi.string().required(),
+  }),
+};
+
+export const editReply = {
+  body: Joi.object().keys({
+    text: Joi.string().max(250),
+    reply_id: Joi.string().required(),
   }),
 };
 

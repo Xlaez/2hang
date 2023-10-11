@@ -4,6 +4,7 @@ import {
   deletePost,
   deleteReply,
   editPost,
+  editReply,
   getReplies,
   getResponds,
   newPost,
@@ -21,8 +22,6 @@ export class PostRouter extends DolphRouteHandler<Dolph> {
   controller: PostsController = new PostsController();
 
   initRoutes(): void {
-    this.router.get(`${this.path}:post_id`, reqValidatorMiddleware(deletePost), this.controller.getPostById);
-
     this.router.get(`${this.path}/likers/:post_id`, reqValidatorMiddleware(deletePost), this.controller.getPostLikers);
 
     this.router.get(`${this.path}/by-type`, reqValidatorMiddleware(queryPostsByType), this.controller.queryPostsByType);
@@ -31,17 +30,21 @@ export class PostRouter extends DolphRouteHandler<Dolph> {
 
     this.router.get(`${this.path}/responds`, reqValidatorMiddleware(getResponds), this.controller.getRespondsForReplies);
 
+    this.router.get(`${this.path}/:post_id`, reqValidatorMiddleware(deletePost), this.controller.getPostById);
+
     this.router.post(`${this.path}`, reqValidatorMiddleware(newPost), this.controller.newPost);
 
     this.router.post(`${this.path}/reply`, reqValidatorMiddleware(addReply), this.controller.addReply);
 
+    this.router.post(`${this.path}/like/:post_id`, reqValidatorMiddleware(deletePost), this.controller.LikePost);
+
+    this.router.post(`${this.path}/reply/like/:reply_id`, reqValidatorMiddleware(deleteReply), this.controller.likeReply);
+
     this.router.put(`${this.path}`, reqValidatorMiddleware(editPost), this.controller.editPost);
 
-    this.router.put(`${this.path}/like/:post_id`, reqValidatorMiddleware(deletePost), this.controller.LikePost);
+    this.router.put(`${this.path}/reply`, reqValidatorMiddleware(editReply), this.controller.editReply);
 
-    this.router.put(`${this.path}/reply/like/:reply_id`, reqValidatorMiddleware(deleteReply), this.controller.likeReply);
-
-    this.router.delete(`${this.path}/reply:reply_id`, reqValidatorMiddleware(deleteReply), this.controller.deleteReply);
+    this.router.delete(`${this.path}/reply/:reply_id`, reqValidatorMiddleware(deleteReply), this.controller.deleteReply);
 
     this.router.delete(`${this.path}/:post_id`, reqValidatorMiddleware(deletePost), this.controller.deletePost);
   }

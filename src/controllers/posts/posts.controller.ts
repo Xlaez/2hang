@@ -60,7 +60,7 @@ export class PostsController extends DolphControllerHandler<Dolph> {
   @TryCatchAsyncDec
   @Authorization(configs.jwt.secret)
   public async editPost(req: Request, res: Response) {
-    const post = await services.postService.findById(req.body.post_id);
+    let post = await services.postService.findById(req.body.post_id);
 
     if (!post) throw new NotFoundException('post does not exist');
 
@@ -77,10 +77,10 @@ export class PostsController extends DolphControllerHandler<Dolph> {
     if (req.body.type !== null || req.body.type !== undefined) {
       post.public = req.body.public;
     }
+    post = await post.save();
+    if (!post) throw new InternalServerErrorException('cannot process request');
 
-    if (!(await post.save())) throw new InternalServerErrorException('cannot process request');
-
-    SuccessResponse({ res, body: { msg: 'post updated successfully' } });
+    SuccessResponse({ res, body: post });
   }
 
   @TryCatchAsyncDec
@@ -114,7 +114,7 @@ export class PostsController extends DolphControllerHandler<Dolph> {
     const usersThatLikedPost = await services.postService.findByIdAndReturnLikers(req.params.post_id);
 
     if (usersThatLikedPost.owner.toString() !== req.user.toString())
-      throw new UnauthorizedException('cannot delete this resource, you don not have the authority');
+      throw new UnauthorizedException('cannot retrieve this resource, you don not have the authority');
 
     SuccessResponse({ res, body: usersThatLikedPost });
   }

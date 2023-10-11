@@ -1,4 +1,5 @@
-import { IPost, IReply, PostModel, ReplyModel } from '@/models';
+import { minifyUserData, sterilizeUserData } from '@/helpers';
+import { IPost, IReply, IUser, PostModel, ReplyModel, UserModel } from '@/models';
 import { paginationLabels } from '@/services/helpers';
 import { DolphServiceHandler } from '@dolphjs/dolph/classes';
 import { BadRequestException, Dolph } from '@dolphjs/dolph/common';
@@ -7,9 +8,12 @@ import { mongoose } from '@dolphjs/dolph/packages';
 
 @InjectMongo('postModel', PostModel)
 @InjectMongo('replyModel', ReplyModel)
+@InjectMongo('userModel', UserModel)
 export class PostService extends DolphServiceHandler<Dolph> {
   postModel!: mongoose.Model<IPost, mongoose.PaginateModel<IPost>>;
   replyModel!: mongoose.Model<IReply, mongoose.PaginateModel<IReply>>;
+  userModel!: mongoose.Model<IUser, mongoose.PaginateModel<IUser>>;
+
   constructor() {
     super('posts');
   }
@@ -27,7 +31,13 @@ export class PostService extends DolphServiceHandler<Dolph> {
   };
 
   public readonly findByIdAndReturnLikers = async (id: string) => {
-    return this.postModel.findById(id).populate('likes.user', 'id username display_name profile_img interests');
+    const post = await this.postModel.findById(id).select(['-content -tags -public -type -createdAt -updatedAt']).lean();
+    const users = [];
+    for (const like of post.likes) {
+      const userInfo = await this.userModel.findById(like.user);
+      users.push(minifyUserData(userInfo));
+    }
+    return { ...post, likes: users };
   };
 
   public readonly queryPostsByType = async (type: string, limit: number, page: number) => {
@@ -60,7 +70,7 @@ export class PostService extends DolphServiceHandler<Dolph> {
   };
 
   public readonly hasLikedReply = async (userId: string, replyId: string) => {
-    return this.postModel.findOne({
+    return this.replyModel.findOne({
       $and: [{ _id: replyId }, { likes: { $in: { user: new mongoose.Types.ObjectId(userId) } } }],
     });
   };
@@ -80,9 +90,13 @@ export class PostService extends DolphServiceHandler<Dolph> {
       newReply.parent_id = parentReply.id;
       newReply.is_child = true;
 
-      reply = await this.replyModel.findByIdAndUpdate(parentId, {
-        $inc: { nb_children: 1 },
-      });
+      reply = await this.replyModel.findByIdAndUpdate(
+        parentId,
+        {
+          $inc: { nb_children: 1 },
+        },
+        { new: true },
+      );
     }
 
     newReply = await newReply.save();
@@ -95,6 +109,7 @@ export class PostService extends DolphServiceHandler<Dolph> {
         {
           $inc: { nb_replies: 1 },
         },
+        { new: true },
       );
     }
 
