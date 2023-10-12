@@ -132,7 +132,9 @@ export class PostsController extends DolphControllerHandler<Dolph> {
   @TryCatchAsyncDec
   @Authorization(configs.jwt.secret)
   public async getRecentPostsFromHangouts(req: Request, res: Response) {
-    // implement with pagination
+    const { limit, page } = req.query;
+    const posts = await services.postService.getRecentPostsFromHangouts(req.user.toString(), +limit, (+page - 1) * +limit);
+    SuccessResponse({ res, body: posts });
   }
 
   @TryCatchAsyncDec

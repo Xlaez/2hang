@@ -1,5 +1,5 @@
 import { minifyUserData, sterilizeUserData } from '@/helpers';
-import { IPost, IReply, IUser, PostModel, ReplyModel, UserModel } from '@/models';
+import { HangoutModel, IHangout, IPost, IReply, IUser, PostModel, ReplyModel, UserModel, posts } from '@/models';
 import { paginationLabels } from '@/services/helpers';
 import { DolphServiceHandler } from '@dolphjs/dolph/classes';
 import { BadRequestException, Dolph } from '@dolphjs/dolph/common';
@@ -9,10 +9,12 @@ import { mongoose } from '@dolphjs/dolph/packages';
 @InjectMongo('postModel', PostModel)
 @InjectMongo('replyModel', ReplyModel)
 @InjectMongo('userModel', UserModel)
+@InjectMongo('hangoutModel', HangoutModel)
 export class PostService extends DolphServiceHandler<Dolph> {
   postModel!: mongoose.Model<IPost, mongoose.PaginateModel<IPost>>;
   replyModel!: mongoose.Model<IReply, mongoose.PaginateModel<IReply>>;
   userModel!: mongoose.Model<IUser, mongoose.PaginateModel<IUser>>;
+  hangoutModel!: mongoose.Model<IHangout, mongoose.PaginateModel<IHangout>>;
 
   constructor() {
     super('posts');
@@ -161,5 +163,51 @@ export class PostService extends DolphServiceHandler<Dolph> {
 
   public readonly updateReplyById = async (id: string, body: any) => {
     return this.replyModel.findByIdAndUpdate(id, body, { new: true });
+  };
+
+  public readonly getRecentPostsFromHangouts = async (userId: string, limit: number, skip: number) => {
+    try {
+      const hangoutPosts = await this.hangoutModel.aggregate([
+        {
+          $match: { users: new mongoose.Types.ObjectId(userId) },
+        },
+        {
+          $unwind: '$users',
+        },
+        {
+          $match: { users: { $ne: new mongoose.Types.ObjectId(userId) } },
+        },
+        {
+          $group: {
+            _id: '$users',
+            latestPosts: { $max: '$createdAt' },
+          },
+        },
+        // {
+        //   $lookup: {
+        //     from: posts,
+        //     localField: '_id',
+        //     foreignField: 'owner',
+        //     as: 'userPosts',
+        //   },
+        // },
+        // {
+        //   $addFields: {
+        //     userPosts: { $arrayElemAt: ['$userPosts', 0] },
+        //   },
+        // },
+        // {
+        //   $sort: { latestPosts: -1 },
+        // },
+        // {
+        //   $skip: skip,
+        //   $limit: limit,
+        // },
+      ]);
+      console.log(hangoutPosts);
+      return hangoutPosts;
+    } catch (e) {
+      throw e;
+    }
   };
 }
