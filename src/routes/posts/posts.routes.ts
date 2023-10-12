@@ -5,6 +5,7 @@ import {
   deleteReply,
   editPost,
   editReply,
+  getRecentHangoutPosts,
   getReplies,
   getResponds,
   newPost,
@@ -29,6 +30,12 @@ export class PostRouter extends DolphRouteHandler<Dolph> {
     this.router.get(`${this.path}/replies`, reqValidatorMiddleware(getReplies), this.controller.getRepliesForPost);
 
     this.router.get(`${this.path}/responds`, reqValidatorMiddleware(getResponds), this.controller.getRespondsForReplies);
+
+    this.router.get(
+      `${this.path}/recent-hangouts-posts`,
+      reqValidatorMiddleware(getRecentHangoutPosts),
+      this.controller.getRecentPostsFromHangouts,
+    );
 
     this.router.get(`${this.path}/:post_id`, reqValidatorMiddleware(deletePost), this.controller.getPostById);
 

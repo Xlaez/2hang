@@ -37,15 +37,22 @@ export const deleteReply = {
 };
 
 export const queryPostsByType = {
-  params: Joi.object().keys({
+  query: Joi.object().keys({
     limit: Joi.string().required(),
     page: Joi.string().required(),
     type: Joi.string().required(),
   }),
 };
 
+export const getRecentHangoutPosts = {
+  query: Joi.object().keys({
+    limit: Joi.string().required(),
+    page: Joi.string().required(),
+  }),
+};
+
 export const getReplies = {
-  params: Joi.object().keys({
+  query: Joi.object().keys({
     limit: Joi.string().required(),
     page: Joi.string().required(),
     post_id: Joi.string().required(),
@@ -55,7 +62,7 @@ export const getReplies = {
 };
 
 export const getResponds = {
-  params: Joi.object().keys({
+  query: Joi.object().keys({
     limit: Joi.string().required(),
     page: Joi.string().required(),
     post_id: Joi.string().required(),

@@ -6,3 +6,4 @@ export const hangouts = 'hangouts';
 export const hangoutsRequets = 'hangout_requests';
 export const reports = 'reports';
 export const replies = 'replies';
+export const messages = 'messages';
