@@ -133,7 +133,8 @@ export class PostsController extends DolphControllerHandler<Dolph> {
   @Authorization(configs.jwt.secret)
   public async getRecentPostsFromHangouts(req: Request, res: Response) {
     const { limit, page } = req.query;
-    const posts = await services.postService.getRecentPostsFromHangouts(req.user.toString(), +limit, (+page - 1) * +limit);
+    const skip = (+page - 1) * +limit;
+    const posts = await services.postService.getRecentPostsFromHangouts(req.user.toString(), +limit, skip);
     SuccessResponse({ res, body: posts });
   }
 
