@@ -178,33 +178,34 @@ export class PostService extends DolphServiceHandler<Dolph> {
           $match: { users: { $ne: new mongoose.Types.ObjectId(userId) } },
         },
         {
-          $group: {
-            _id: '$users',
-            latestPosts: { $max: '$createdAt' },
+          $lookup: {
+            from: posts,
+            localField: 'users',
+            foreignField: 'owner',
+            as: 'userPosts',
+          },
+        },
+        {
+          $addFields: {
+            userPosts: { $arrayElemAt: ['$userPosts', 0] },
           },
         },
         // {
-        //   $lookup: {
-        //     from: posts,
-        //     localField: '_id',
-        //     foreignField: 'owner',
-        //     as: 'userPosts',
+        //   $group: {
+        //     _id: '$users',
+        //     latestPost: { $max: '$userPost.createdAt' },
         //   },
         // },
-        // {
-        //   $addFields: {
-        //     userPosts: { $arrayElemAt: ['$userPosts', 0] },
-        //   },
-        // },
-        // {
-        //   $sort: { latestPosts: -1 },
-        // },
-        // {
-        //   $skip: skip,
-        //   $limit: limit,
-        // },
+        {
+          $sort: { userPosts: -1 },
+        },
+        {
+          $skip: skip,
+        },
+        {
+          $limit: limit,
+        },
       ]);
-      console.log(hangoutPosts);
       return hangoutPosts;
     } catch (e) {
       throw e;
