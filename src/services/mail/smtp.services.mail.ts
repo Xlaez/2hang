@@ -12,7 +12,7 @@ const transport = createTransport({
 
 export const sendMail = async (subject: string, html: any, receiver: string) => {
   const emailData = {
-    from: '2hang <tech@2hang.xyz>',
+    from: 'meetpeeps <tech@meetpeeps.xyz>',
     to: receiver,
     subject,
     html,
