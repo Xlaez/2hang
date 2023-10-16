@@ -6,3 +6,9 @@ export const newMessage = {
     hangout_id: Joi.string().required(),
   }),
 };
+
+export const getMessagesByHangoutId = {
+  params: Joi.object().keys({
+    hangout_id: Joi.string().required(),
+  }),
+};
