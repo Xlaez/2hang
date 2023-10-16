@@ -37,6 +37,12 @@ export class PostRouter extends DolphRouteHandler<Dolph> {
       this.controller.getRecentPostsFromHangouts,
     );
 
+    this.router.get(
+      `${this.path}/recent-nearbypeeps-posts`,
+      reqValidatorMiddleware(getRecentHangoutPosts),
+      this.controller.getRecentPostsFromPeopleInNearbyLocation,
+    );
+
     this.router.get(`${this.path}/:post_id`, reqValidatorMiddleware(deletePost), this.controller.getPostById);
 
     this.router.post(`${this.path}`, reqValidatorMiddleware(newPost), this.controller.newPost);

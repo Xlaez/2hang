@@ -141,7 +141,15 @@ export class PostsController extends DolphControllerHandler<Dolph> {
   @TryCatchAsyncDec
   @Authorization(configs.jwt.secret)
   public async getRecentPostsFromPeopleInNearbyLocation(req: Request, res: Response) {
-    // implement with pagination
+    const { limit, page } = req.query;
+    const skip = (+page - 1) * +limit;
+    const user = await services.userService.findById(req.user.toString());
+    const posts = await services.postService.getRecentPostsFromPeopleNearby(
+      user.location.country || 'nigeria',
+      +limit,
+      skip,
+    );
+    SuccessResponse({ res, body: posts });
   }
 
   @TryCatchAsyncDec

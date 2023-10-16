@@ -211,4 +211,49 @@ export class PostService extends DolphServiceHandler<Dolph> {
       throw e;
     }
   };
+
+  public readonly getRecentPostsFromPeopleNearby = async (country: string, limit: number, skip: number) => {
+    try {
+      // TODO: update code to make countries an array of nearvy countries
+      const hangoutPosts = await this.userModel.aggregate([
+        {
+          $match: { 'location.country': country },
+        },
+        // {
+        //   $unwind: '$users',
+        // },
+        {
+          $lookup: {
+            from: posts,
+            localField: '_id',
+            foreignField: 'owner',
+            as: 'userPosts',
+          },
+        },
+        {
+          $addFields: {
+            userPosts: { $arrayElemAt: ['$userPosts', 0] },
+          },
+        },
+        // {
+        //   $group: {
+        //     _id: '$users',
+        //     latestPost: { $max: '$userPost.createdAt' },
+        //   },
+        // },
+        {
+          $sort: { userPosts: -1 },
+        },
+        {
+          $skip: skip,
+        },
+        {
+          $limit: limit,
+        },
+      ]);
+      return hangoutPosts;
+    } catch (e) {
+      throw e;
+    }
+  };
 }
