@@ -4,7 +4,15 @@ import { Authorization } from '@/decorators';
 import { uploadOneToCloud } from '@/services/helpers';
 import { Services } from '@/services/v1';
 import { DolphControllerHandler } from '@dolphjs/dolph/classes';
-import { BadRequestException, Dolph, SuccessResponse, TryCatchAsyncDec } from '@dolphjs/dolph/common';
+import {
+  BadRequestException,
+  Dolph,
+  InternalServerErrorException,
+  NotFoundException,
+  SuccessResponse,
+  TryCatchAsyncDec,
+  pick,
+} from '@dolphjs/dolph/common';
 import { MediaParser } from '@dolphjs/dolph/utilities';
 import { Request, Response } from 'express';
 
@@ -43,5 +51,19 @@ export class MessageController extends DolphControllerHandler<Dolph> {
 
   @TryCatchAsyncDec
   @Authorization(configs.jwt.secret)
-  public async getMessagesForHangout(req: Request, res: Response) {}
+  public async getMessagesForHangout(req: Request, res: Response) {
+    const filter = pick(req.params, ['hangout_id']);
+    const options = pick(req.query, ['limit', 'page']);
+    const messages = await services.messageService.getMessagesByHangoutId(filter, options);
+    if (!messages) throw new NotFoundException('there is no messages in this hangout');
+    SuccessResponse({ res, body: messages });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async markMessageRead(req: Request, res: Response) {
+    const msg = await services.messageService.markMessageAsRead(req.params.hangout_id, req.user.toString());
+    if (!msg) throw new InternalServerErrorException('cannot process request');
+    SuccessResponse({ res, body: { msg: 'updated' } });
+  }
 }
