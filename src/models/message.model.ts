@@ -19,6 +19,7 @@ const MessageSchema = new mongoose.Schema(
       ref: users,
     },
     read_by: [ReadBySchema],
+    deleted_for: [{ type: mongoose.Types.ObjectId, ref: users }],
   },
   {
     timestamps: true,
