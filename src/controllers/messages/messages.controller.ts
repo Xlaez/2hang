@@ -1,6 +1,7 @@
 import { configs } from '@/configs';
 import { messageExtensions } from '@/constants';
 import { Authorization } from '@/decorators';
+import { IHangout, messages } from '@/models';
 import { uploadOneToCloud } from '@/services/helpers';
 import { Services } from '@/services/v1';
 import { DolphControllerHandler } from '@dolphjs/dolph/classes';
@@ -65,5 +66,60 @@ export class MessageController extends DolphControllerHandler<Dolph> {
     const msg = await services.messageService.markMessageAsRead(req.params.hangout_id, req.user.toString());
     if (!msg) throw new InternalServerErrorException('cannot process request');
     SuccessResponse({ res, body: { msg: 'updated' } });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async deleteMessage(req: Request, res: Response) {
+    const msg = await services.messageService.deleteMessage(req.user.toString(), req.params.message_id);
+    if (!msg) throw new InternalServerErrorException('cannot process request');
+    SuccessResponse({ res, body: msg });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async getRecentMessages(req: Request, res: Response) {
+    // update limit later to work with pagination
+    const hangouts = await services.userService.getHangouts(req.user.toString(), 1000, 1);
+
+    if (!hangouts) throw new NotFoundException('user has no messages');
+    const hangout_ids = hangouts.docs.map((hangout: IHangout) => hangout._id);
+
+    const recentMessages = await services.messageService.getRecentMsgsFromAllHangouts(hangout_ids, req.user.toString());
+    const flatMessages = recentMessages.map((message) => {
+      const usersProfile = message.hangoutData.flat();
+      const read_by = message.read_by.flat();
+
+      const profile = usersProfile.map((profile) => {
+        return {
+          id: profile._id,
+          username: profile.username,
+          name: profile.display_name,
+        };
+      });
+
+      return {
+        id: message._id,
+        msg_id: message.msg_id,
+        msg: message.msg,
+        from: message.sender,
+        read_by,
+        createdAt: message.createdAt,
+        updatedAt: message.updatedAt,
+        unread: message.unread,
+        deleted_for: message.deleted_for,
+        profile,
+      };
+    });
+
+    SuccessResponse({ res, body: flatMessages });
+  }
+
+  @TryCatchAsyncDec
+  @Authorization(configs.jwt.secret)
+  public async updateMessag(req: Request, res: Response) {
+    const message = await services.messageService.updateById(req.body.message_id, req.body);
+    if (!message) throw new InternalServerErrorException('cannot process request');
+    SuccessResponse({ res, body: message });
   }
 }
