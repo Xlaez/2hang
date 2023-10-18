@@ -340,4 +340,23 @@ export class UserService extends DolphServiceHandler<Dolph> {
   public readonly updateHangoutByID = async (id: string, body: any) => {
     return this.hangoutModel.findByIdAndUpdate(id, body, { new: true });
   };
+
+  public readonly getUsersWithMostHangouts = async (limit: number, page: number) => {
+    const options = {
+      lean: true,
+      customLabels: paginationLabels,
+    };
+
+    //@ts-expect-error
+    return this.userModel.paginate(
+      {},
+      {
+        ...(limit ? { limit } : { limit: 20 }),
+        page,
+        sort: { hangouts: -1 },
+        select: ['display_name', 'username', 'profile_img', 'hangouts', 'gender', 'location', 'createdAt'],
+        ...options,
+      },
+    );
+  };
 }
