@@ -12,3 +12,16 @@ export const getMessagesByHangoutId = {
     hangout_id: Joi.string().required(),
   }),
 };
+
+export const deleteMessage = {
+  params: Joi.object().keys({
+    message_id: Joi.string().required(),
+  }),
+};
+
+export const updateMessage = {
+  body: Joi.object().keys({
+    message_id: Joi.string().required(),
+    text: Joi.string(),
+  }),
+};
